@@ -1,0 +1,4 @@
+{
+  "name": "project",
+  "mongodbPath": "mongodb://localhost/expenses"
+}
