@@ -28,14 +28,37 @@ function validate(req) {
   return Joi.validate(req, schema);
 }
 
-module.exports = async (req, res) => {
+const validateRequestBody = (req) => {
   const { error } = validate(req.body);
-  if (error && dev) debug(`ERROR | ${req.method} | ${req.url}`);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) throw Error(error.details[0].message);
+};
+
+const validateUser = async (req) => {
   const user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(400).send('Invalid email or password.');
-  const validPassword = await bcrypt.compare(req.body.password, user.password);
-  if (!validPassword) return res.status(400).send('Invalid email or password.');
-  const token = user.generateAuthToken();
+  if (!user) throw Error('Invalid email or password.');
+};
+
+const validatePassword = async (req) => {
+  const user = await User.findOne({ email: req.body.email });
+  const isValidPassword = await bcrypt.compare(req.body.password, user.password);
+  if (!isValidPassword) throw Error('Invalid email or password.');
+};
+
+const getToken = async (req) => {
+  const user = await User.findOne({ email: req.body.email });
+  return user.generateAuthToken();
+};
+
+module.exports = async (req, res) => {
+  try {
+    validateRequestBody(req, res);
+    await validateUser(req, res);
+    await validatePassword(req, res);
+  } catch (error) {
+    if (error && dev) debug(`ERROR | ${req.method} | ${req.url}`);
+    return res.status(400).send(error.message);
+  }
+
+  const token = await getToken(req, res);
   return res.send(token);
 };
