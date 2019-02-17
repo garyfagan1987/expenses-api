@@ -4,7 +4,7 @@ const debug = require('debug')('app:startup');
 const express = require('express');
 const mongoose = require('mongoose');
 const Joi = require('joi');
-const { User } = require('./user');
+const { User } = require('../models/user');
 
 const dev = express().get('env') === 'development';
 
