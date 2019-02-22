@@ -70,10 +70,11 @@ exports.create = async (req, res) => {
 };
 
 exports.get = async (req, res) => {
-  const sheets = await Sheet.find().sort({ date: 1 }).select({ date: 1, title: 1 });
+  const sheets = await Sheet.find().sort({ date: 1 });
   res.send(sheets.map(sheet => ({
     date: sheet.date,
     id: sheet._id,
+    isPublished: sheet.isPublished,
     title: sheet.title,
   })));
 };
