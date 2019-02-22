@@ -71,12 +71,7 @@ exports.create = async (req, res) => {
 
 exports.get = async (req, res) => {
   const sheets = await Sheet.find().sort({ date: 1 });
-  res.send(sheets.map(sheet => ({
-    date: sheet.date,
-    id: sheet._id,
-    isPublished: sheet.isPublished,
-    title: sheet.title,
-  })));
+  res.send(sheets);
 };
 
 exports.one = async (req, res) => {
