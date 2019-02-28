@@ -13,10 +13,13 @@ mongoose.connect(config.get('mongodbPath'))
   .then(() => dev && debug(`SUCCESS | Connected to mongodb at: ${config.get('mongodbPath')}`))
   .catch(err => dev && debug(`ERROR | Could not connect to mongodb: ${err}`));
 
+const reducer = (accumulator, currentValue) => accumulator + currentValue;
+
 function validate(sheet) {
   return Joi.validate(sheet, {
     date: Joi.date().required(),
     isPublished: Joi.boolean().required(),
+    items: Joi.array().required(),
     title: Joi.string().min(3).required(),
   });
 }
@@ -48,7 +51,11 @@ const updateSheet = async (req) => {
       $set: {
         date: req.body.date,
         isPublished: req.body.isPublished,
+        items: req.body.items,
         title: req.body.title,
+        total_gross: req.body.items.map(item => item.price_gross).reduce(reducer),
+        total_net: req.body.items.map(item => item.price_net).reduce(reducer),
+        total_vat: req.body.items.map(item => item.price_vat).reduce(reducer),
       },
     });
   } catch (error) {
