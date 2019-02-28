@@ -34,7 +34,11 @@ const createSheet = async (req) => {
   const sheet = new Sheet({
     date: req.body.date,
     isPublished: req.body.isPublished,
+    items: req.body.items,
     title: req.body.title,
+    total_gross: 0,
+    total_net: 0,
+    total_vat: 0,
   });
   try {
     result = await sheet.save();
