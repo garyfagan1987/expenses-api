@@ -29,17 +29,21 @@ const validateRequestBody = (req) => {
   if (error) throw Error(error.details[0].message);
 };
 
+
+const transformSheet = data => ({
+  date: data.date,
+  isPublished: data.isPublished,
+  items: data.items,
+  title: data.title,
+  total_gross: data.items.length > 0 ? data.items.map(item => item.price_gross).reduce(reducer) : 0,
+  total_net: data.items.length > 0 ? data.items.map(item => item.price_net).reduce(reducer) : 0,
+  total_vat: data.items.length > 0 ? data.items.map(item => item.price_vat).reduce(reducer) : 0,
+});
+
 const createSheet = async (req) => {
   let result;
-  const sheet = new Sheet({
-    date: req.body.date,
-    isPublished: req.body.isPublished,
-    items: req.body.items,
-    title: req.body.title,
-    total_gross: 0,
-    total_net: 0,
-    total_vat: 0,
-  });
+  const sheetData = transformSheet(req.body);
+  const sheet = new Sheet(sheetData);
   try {
     result = await sheet.save();
   } catch (error) {
@@ -52,15 +56,7 @@ const updateSheet = async (req) => {
   let result;
   try {
     result = await Sheet.findByIdAndUpdate(req.params.id, {
-      $set: {
-        date: req.body.date,
-        isPublished: req.body.isPublished,
-        items: req.body.items,
-        title: req.body.title,
-        total_gross: req.body.items.map(item => item.price_gross).reduce(reducer),
-        total_net: req.body.items.map(item => item.price_net).reduce(reducer),
-        total_vat: req.body.items.map(item => item.price_vat).reduce(reducer),
-      },
+      $set: transformSheet(req.body),
     });
   } catch (error) {
     throw Error('Sheet could not be updated');
