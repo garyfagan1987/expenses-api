@@ -35,9 +35,9 @@ const transformSheet = data => ({
   isPublished: data.isPublished,
   items: data.items,
   title: data.title,
-  total_gross: data.items.length > 0 ? data.items.map(item => item.price_gross).reduce(reducer) : 0,
-  total_net: data.items.length > 0 ? data.items.map(item => item.price_net).reduce(reducer) : 0,
-  total_vat: data.items.length > 0 ? data.items.map(item => item.price_vat).reduce(reducer) : 0,
+  totalGross: data.items.length > 0 ? data.items.map(item => item.price_gross).reduce(reducer) : 0,
+  totalNet: data.items.length > 0 ? data.items.map(item => item.price_net).reduce(reducer) : 0,
+  totalVat: data.items.length > 0 ? data.items.map(item => item.price_vat).reduce(reducer) : 0,
 });
 
 const createSheet = async (req) => {
