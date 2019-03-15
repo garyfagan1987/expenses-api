@@ -46,7 +46,7 @@ const validatePassword = async (req) => {
 
 const getToken = async (req) => {
   const user = await User.findOne({ email: req.body.email });
-  return user.generateAuthToken();
+  return user.generateAuthToken(user);
 };
 
 module.exports = async (req, res) => {
