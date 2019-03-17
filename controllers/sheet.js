@@ -94,7 +94,8 @@ exports.one = async (req, res) => {
   const token = req.headers['x-auth-token'];
   const user = jwt.verify(token, config.get('jwtPrivateKey'));
   const usersSheets = await User.findById(user._id).distinct('sheets');
-  const isAllowed = usersSheets.includes(req.params.id);
+  const convertedUsersSheets = JSON.stringify(usersSheets);
+  const isAllowed = convertedUsersSheets.includes(req.params.id);
   let result;
   if (isAllowed) {
     result = await Sheet.findById(req.params.id).catch(() => {
@@ -112,7 +113,8 @@ exports.update = async (req, res) => {
   const token = req.headers['x-auth-token'];
   const user = jwt.verify(token, config.get('jwtPrivateKey'));
   const usersSheets = await User.findById(user._id).distinct('sheets');
-  const isAllowed = usersSheets.includes(req.params.id);
+  const convertedUsersSheets = JSON.stringify(usersSheets);
+  const isAllowed = convertedUsersSheets.includes(req.params.id);
   let sheet;
   if (isAllowed) {
     try {
