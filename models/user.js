@@ -23,6 +23,13 @@ const userSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
+  sheets: {
+    required: true,
+    type: [{
+      ref: 'sheets',
+      type: mongoose.Schema.Types.ObjectId,
+    }],
+  },
 });
 
 userSchema.methods.generateAuthToken = (user) => {

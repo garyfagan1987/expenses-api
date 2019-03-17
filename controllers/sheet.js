@@ -3,9 +3,11 @@ const config = require('config');
 const debug = require('debug')('app:startup');
 const express = require('express');
 const Joi = require('joi');
+const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
 const { Sheet } = require('../models/sheet');
+const { User } = require('../models/user');
 
 const dev = express().get('env') === 'development';
 
@@ -65,10 +67,14 @@ const updateSheet = async (req) => {
 };
 
 exports.create = async (req, res) => {
+  const token = req.headers['x-auth-token'];
+  const user = jwt.verify(token, config.get('jwtPrivateKey'));
+
   let sheet;
   try {
     validateRequestBody(req, res);
     sheet = await createSheet(req);
+    await User.update({ _id: user._id }, { $push: { sheets: { _id: sheet._id} } });
   } catch (error) {
     if (dev) debug(`ERROR | ${req.method} | ${req.url}`);
     return res.status(400).send(error.message);
@@ -77,34 +83,66 @@ exports.create = async (req, res) => {
 };
 
 exports.get = async (req, res) => {
-  const sheets = await Sheet.find().sort({ date: 1 });
+  const token = req.headers['x-auth-token'];
+  const user = jwt.verify(token, config.get('jwtPrivateKey'));
+  const usersSheets = await User.findById(user._id).distinct('sheets');
+  const sheets = await Sheet.find({ _id: { $in: usersSheets } });
   res.send(sheets);
 };
 
 exports.one = async (req, res) => {
-  const result = await Sheet.findById(req.params.id).catch(() => {
-    if (dev) debug(`ERROR | ${req.method} | ${req.url}`);
-    return res.status(404).send('Sheet was not found');
-  });
+  const token = req.headers['x-auth-token'];
+  const user = jwt.verify(token, config.get('jwtPrivateKey'));
+  const usersSheets = await User.findById(user._id).distinct('sheets');
+  const isAllowed = usersSheets.includes(req.params.id);
+  let result;
+  if (isAllowed) {
+    result = await Sheet.findById(req.params.id).catch(() => {
+      if (dev) debug(`ERROR | ${req.method} | ${req.url}`);
+      return res.status(404).send('Sheet was not found');
+    });
+  } else {
+    result = res.status(404).send('Sheet was not found');
+  }
+
   return res.send(result);
 };
 
 exports.update = async (req, res) => {
+  const token = req.headers['x-auth-token'];
+  const user = jwt.verify(token, config.get('jwtPrivateKey'));
+  const usersSheets = await User.findById(user._id).distinct('sheets');
+  const isAllowed = usersSheets.includes(req.params.id);
   let sheet;
-  try {
-    validateRequestBody(req, res);
-    sheet = await updateSheet(req);
-  } catch (error) {
-    if (dev) debug(`ERROR | ${req.method} | ${req.url}`);
-    return res.status(400).send(error.message);
+  if (isAllowed) {
+    try {
+      validateRequestBody(req, res);
+      sheet = await updateSheet(req);
+    } catch (error) {
+      if (dev) debug(`ERROR | ${req.method} | ${req.url}`);
+      return res.status(400).send(error.message);
+    }
+  } else {
+    return res.status(400).send('Unable to update sheet');
   }
   return res.send(sheet);
 };
 
 exports.remove = async (req, res) => {
-  const result = await Sheet.findByIdAndRemove(req.params.id).catch(() => {
-    if (dev) debug(`ERROR | ${req.method} | ${req.url}`);
+  const token = req.headers['x-auth-token'];
+  const user = jwt.verify(token, config.get('jwtPrivateKey'));
+  const usersSheets = await User.findById(user._id).distinct('sheets');
+  const convertedUsersSheets = JSON.stringify(usersSheets);
+  const isAllowed = convertedUsersSheets.includes(req.params.id);
+
+  if (isAllowed) {
+    const result = await Sheet.findByIdAndRemove(req.params.id).catch(() => {
+      if (dev) debug(`ERROR | ${req.method} | ${req.url}`);
+      res.status(404).send('Sheet was not found');
+    });
+    await User.update({ _id: user._id }, { $pull: { sheets: req.params.id } });
+    if (result) res.send(result);
+  } else {
     res.status(404).send('Sheet was not found');
-  });
-  if (result) res.send(result);
+  }
 };
