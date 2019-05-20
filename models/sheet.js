@@ -6,9 +6,9 @@ const sheetSchema = new mongoose.Schema({
   isPublished: { required: true, type: Boolean },
   items: { required: true, type: Array },
   title: { required: true, type: String },
-  totalGross: { required: true, type: Number },
-  totalNet: { required: true, type: Number },
-  totalVat: { required: true, type: Number },
+  totalGross: { required: true, type: String },
+  totalNet: { required: true, type: String },
+  totalVat: { required: true, type: String },
 });
 
 const Sheet = mongoose.model('Sheet', sheetSchema);
