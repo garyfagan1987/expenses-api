@@ -60,5 +60,5 @@ module.exports = async (req, res) => {
   }
 
   const token = await getToken(req, res);
-  return res.send(token);
+  return res.send({ token });
 };
