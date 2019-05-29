@@ -71,5 +71,5 @@ exports.create = async (req, res) => {
     return res.status(400).send(error.message);
   }
   const user = new User(_.pick(req.body, ['name', 'email', 'password']));
-  return res.header('x-auth-token', user.generateAuthToken()).send(_.pick(user, ['id', 'name', 'email']));
+  return res.send(user);
 };
