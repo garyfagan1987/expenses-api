@@ -7,7 +7,6 @@ const sheetSchema = new mongoose.Schema({
   items: { required: true, type: Array },
   title: { required: true, type: String },
   totalGross: { required: true, type: String },
-  totalNet: { required: true, type: String },
   totalVat: { required: true, type: String },
 });
 

@@ -38,7 +38,6 @@ const transformSheet = data => ({
   items: data.items,
   title: data.title,
   totalGross: data.items.length > 0 ? data.items.map(item => parseFloat(item.price_gross)).reduce(reducer) : 0,
-  totalNet: data.items.length > 0 ? data.items.map(item => parseFloat(item.price_net)).reduce(reducer) : 0,
   totalVat: data.items.length > 0 ? data.items.map(item => parseFloat(item.price_vat)).reduce(reducer) : 0,
 });
 
@@ -56,6 +55,7 @@ const createSheet = async (req) => {
 
 const updateSheet = async (req) => {
   let result;
+  console.log(req.body);
   try {
     result = await Sheet.findByIdAndUpdate(req.params.id, {
       $set: transformSheet(req.body),
