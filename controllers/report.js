@@ -55,7 +55,6 @@ const createSheet = async (req) => {
 
 const updateSheet = async (req) => {
   let result;
-  console.log(req.body);
   try {
     result = await Report.findByIdAndUpdate(req.params.id, {
       $set: transformSheet(req.body),
