@@ -3,7 +3,7 @@ const express = require('express');
 const config = require('config');
 const debug = require('debug')('app:startup');
 const auth = require('./routes/auth');
-const sheets = require('./routes/sheets');
+const reports = require('./routes/reports');
 const users = require('./routes/users');
 
 const app = express();
@@ -17,7 +17,7 @@ if (!config.get('jwtPrivateKey')) {
 app.use(cors());
 app.use(express.json());
 app.use('/api/auth', auth);
-app.use('/api/sheets', sheets);
+app.use('/api/reports', reports);
 app.use('/api/users', users);
 
 app.listen(port, () => {

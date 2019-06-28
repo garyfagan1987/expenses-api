@@ -10,6 +10,6 @@ const sheetSchema = new mongoose.Schema({
   totalVat: { required: true, type: String },
 });
 
-const Sheet = mongoose.model('Sheet', sheetSchema);
+const Report = mongoose.model('Report', sheetSchema);
 
-exports.Sheet = Sheet;
+exports.Report = Report;

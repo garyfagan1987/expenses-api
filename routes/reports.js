@@ -8,7 +8,7 @@ const {
   one,
   update,
   remove,
-} = require('../controllers/sheet');
+} = require('../controllers/report');
 
 router.post('/', auth, (req, res) => create(req, res));
 router.get('/', auth, (req, res) => get(req, res));

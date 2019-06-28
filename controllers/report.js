@@ -6,7 +6,7 @@ const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
-const { Sheet } = require('../models/sheet');
+const { Report } = require('../models/report');
 const { User } = require('../models/user');
 
 const dev = express().get('env') === 'development';
@@ -17,8 +17,8 @@ mongoose.connect(config.get('mongodbPath'))
 
 const reducer = (accumulator, currentValue) => accumulator + currentValue;
 
-function validate(sheet) {
-  return Joi.validate(sheet, {
+function validate(report) {
+  return Joi.validate(report, {
     date: Joi.date().required(),
     isPublished: Joi.boolean().required(),
     items: Joi.array().required(),
@@ -44,11 +44,11 @@ const transformSheet = data => ({
 const createSheet = async (req) => {
   let result;
   const sheetData = transformSheet(req.body);
-  const sheet = new Sheet(sheetData);
+  const report = new Report(sheetData);
   try {
-    result = await sheet.save();
+    result = await report.save();
   } catch (error) {
-    throw Error('Sheet could not be created');
+    throw Error('Report could not be created');
   }
   return result;
 };
@@ -57,11 +57,11 @@ const updateSheet = async (req) => {
   let result;
   console.log(req.body);
   try {
-    result = await Sheet.findByIdAndUpdate(req.params.id, {
+    result = await Report.findByIdAndUpdate(req.params.id, {
       $set: transformSheet(req.body),
     });
   } catch (error) {
-    throw Error('Sheet could not be updated');
+    throw Error('Report could not be updated');
   }
   return result;
 };
@@ -70,40 +70,40 @@ exports.create = async (req, res) => {
   const token = req.headers['x-auth-token'];
   const user = jwt.verify(token, config.get('jwtPrivateKey'));
 
-  let sheet;
+  let report;
   try {
     validateRequestBody(req, res);
-    sheet = await createSheet(req);
-    await User.update({ _id: user._id }, { $push: { sheets: { _id: sheet._id} } });
+    report = await createSheet(req);
+    await User.update({ _id: user._id }, { $push: { reports: { _id: report._id} } });
   } catch (error) {
     if (dev) debug(`ERROR | ${req.method} | ${req.url}`);
     return res.status(400).send(error.message);
   }
-  return res.send(sheet);
+  return res.send(report);
 };
 
 exports.get = async (req, res) => {
   const token = req.headers['x-auth-token'];
   const user = jwt.verify(token, config.get('jwtPrivateKey'));
-  const usersSheets = await User.findById(user._id).distinct('sheets');
-  const sheets = await Sheet.find({ _id: { $in: usersSheets } });
-  res.send(sheets);
+  const usersSheets = await User.findById(user._id).distinct('reports');
+  const reports = await Report.find({ _id: { $in: usersSheets } });
+  res.send(reports);
 };
 
 exports.one = async (req, res) => {
   const token = req.headers['x-auth-token'];
   const user = jwt.verify(token, config.get('jwtPrivateKey'));
-  const usersSheets = await User.findById(user._id).distinct('sheets');
+  const usersSheets = await User.findById(user._id).distinct('reports');
   const convertedUsersSheets = JSON.stringify(usersSheets);
   const isAllowed = convertedUsersSheets.includes(req.params.id);
   let result;
   if (isAllowed) {
-    result = await Sheet.findById(req.params.id).catch(() => {
+    result = await Report.findById(req.params.id).catch(() => {
       if (dev) debug(`ERROR | ${req.method} | ${req.url}`);
-      return res.status(404).send('Sheet was not found');
+      return res.status(404).send('Report was not found');
     });
   } else {
-    result = res.status(404).send('Sheet was not found');
+    result = res.status(404).send('Report was not found');
   }
 
   return res.send(result);
@@ -112,39 +112,39 @@ exports.one = async (req, res) => {
 exports.update = async (req, res) => {
   const token = req.headers['x-auth-token'];
   const user = jwt.verify(token, config.get('jwtPrivateKey'));
-  const usersSheets = await User.findById(user._id).distinct('sheets');
+  const usersSheets = await User.findById(user._id).distinct('reports');
   const convertedUsersSheets = JSON.stringify(usersSheets);
   const isAllowed = convertedUsersSheets.includes(req.params.id);
-  let sheet;
+  let report;
   if (isAllowed) {
     try {
       validateRequestBody(req, res);
-      sheet = await updateSheet(req);
+      report = await updateSheet(req);
     } catch (error) {
       if (dev) debug(`ERROR | ${req.method} | ${req.url}`);
       return res.status(400).send(error.message);
     }
   } else {
-    return res.status(400).send('Unable to update sheet');
+    return res.status(400).send('Unable to update report');
   }
-  return res.send(sheet);
+  return res.send(report);
 };
 
 exports.remove = async (req, res) => {
   const token = req.headers['x-auth-token'];
   const user = jwt.verify(token, config.get('jwtPrivateKey'));
-  const usersSheets = await User.findById(user._id).distinct('sheets');
+  const usersSheets = await User.findById(user._id).distinct('reports');
   const convertedUsersSheets = JSON.stringify(usersSheets);
   const isAllowed = convertedUsersSheets.includes(req.params.id);
 
   if (isAllowed) {
-    const result = await Sheet.findByIdAndRemove(req.params.id).catch(() => {
+    const result = await Report.findByIdAndRemove(req.params.id).catch(() => {
       if (dev) debug(`ERROR | ${req.method} | ${req.url}`);
-      res.status(404).send('Sheet was not found');
+      res.status(404).send('Report was not found');
     });
-    await User.update({ _id: user._id }, { $pull: { sheets: req.params.id } });
+    await User.update({ _id: user._id }, { $pull: { reports: req.params.id } });
     if (result) res.send(result);
   } else {
-    res.status(404).send('Sheet was not found');
+    res.status(404).send('Report was not found');
   }
 };

@@ -23,10 +23,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
-  sheets: {
+  reports: {
     required: true,
     type: [{
-      ref: 'sheets',
+      ref: 'reports',
       type: mongoose.Schema.Types.ObjectId,
     }],
   },
