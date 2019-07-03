@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt');
-const config = require('config');
 const debug = require('debug')('app:startup');
 const express = require('express');
 const mongoose = require('mongoose');
@@ -8,8 +7,8 @@ const { User } = require('../models/user');
 
 const dev = express().get('env') === 'development';
 
-mongoose.connect(config.get('mongodbPath'))
-  .then(() => dev && debug(`SUCCESS | Connected to mongodb at: ${config.get('mongodbPath')}`))
+mongoose.connect(process.env.MONGO_DB_PATH)
+  .then(() => dev && debug(`SUCCESS | Connected to mongodb at: ${process.env.MONGO_DB_PATH}`))
   .catch(err => dev && debug(`ERROR | Could not connect to mongodb: ${err}`));
 
 function validate(req) {
