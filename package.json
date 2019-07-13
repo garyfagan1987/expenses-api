@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "project_jwtPrivateKey=mySecureKey DEBUG=app:startup nodemon app.js"
+    "start": "project_jwtPrivateKey=mySecureKey DEBUG=app:startup node index.js"
   },
   "keywords": [],
   "author": "",
