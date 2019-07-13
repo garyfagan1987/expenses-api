@@ -13,7 +13,7 @@ lint:
 	eslint "**/*.js" --config .eslintrc
 
 dev:
-	MONGO_DB_PATH=mongodb://localhost/expenses project_jwtPrivateKey=mySecureKey DEBUG=app:startup nodemon app.js
+	MONGO_DB_PATH=mongodb://localhost/expenses project_jwtPrivateKey=mySecureKey DEBUG=app:startup nodemon index.js
 
 deploy:
-	project_jwtPrivateKey=mySecureKey DEBUG=app:startup nodemon app.js
+	project_jwtPrivateKey=mySecureKey DEBUG=app:startup nodemon index.js
