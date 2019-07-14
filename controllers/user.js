@@ -11,8 +11,8 @@ const { User } = require('../models/user');
 const dev = express().get('env') === 'development';
 
 mongoose.connect(process.env.MONGO_DB_PATH)
-  .then(() => debug(`SUCCESS | Connected to mongodb at: ${process.env.MONGO_DB_PATH}`))
-  .catch(err => debug(`ERROR | Could not connect to mongodb: ${err}`));
+  .then(() => dev && debug(`SUCCESS | Connected to mongodb at: ${process.env.MONGO_DB_PATH}`))
+  .catch(err => dev && debug(`ERROR | Could not connect to mongodb: ${err}`));
 
 function validate(user) {
   const schema = {
@@ -35,27 +35,22 @@ function validate(user) {
 }
 
 const validateRequestBody = (req) => {
-  console.log('2');
   const { error } = validate(req.body);
   if (error) throw Error(error.details[0].message);
 };
 
 const hasExistingAccount = async (req) => {
-  console.log('3');
   const user = await User.findOne({ email: req.body.email });
   if (user) throw Error('User is already registered.');
 };
 
 const createAccount = async (req) => {
-  console.log('4');
   const user = new User(_.pick(req.body, ['name', 'email', 'password']));
   try {
-    console.log('5');
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(user.password, salt);
     await user.save();
   } catch (error) {
-    console.log('6');
     if (error) throw Error('User could not be created');
   }
 };
@@ -67,12 +62,10 @@ exports.get = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    console.log('1');
     validateRequestBody(req, res);
     await hasExistingAccount(req);
     await createAccount(req, res);
   } catch (error) {
-    console.log('7');
     if (error && dev) debug(`ERROR | ${req.method} | ${req.url}`);
     return res.status(400).send(error.message);
   }
