@@ -11,8 +11,8 @@ const { User } = require('../models/user');
 const dev = express().get('env') === 'development';
 
 mongoose.connect(process.env.MONGO_DB_PATH)
-  .then(() => dev && debug(`SUCCESS | Connected to mongodb at: ${process.env.MONGO_DB_PATH}`))
-  .catch(err => dev && debug(`ERROR | Could not connect to mongodb: ${err}`));
+  .then(() => debug(`SUCCESS | Connected to mongodb at: ${process.env.MONGO_DB_PATH}`))
+  .catch(err => debug(`ERROR | Could not connect to mongodb: ${err}`));
 
 function validate(user) {
   const schema = {
