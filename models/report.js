@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 
 const sheetSchema = new mongoose.Schema({
   date: { default: Date.now, type: Date },
+  isPaid: { required: true, type: Boolean },
   isPublished: { required: true, type: Boolean },
   items: { required: true, type: Array },
   title: { required: true, type: String },

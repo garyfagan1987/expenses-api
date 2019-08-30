@@ -20,6 +20,7 @@ const reducer = (accumulator, currentValue) => accumulator + currentValue;
 function validate(report) {
   return Joi.validate(report, {
     date: Joi.date().required(),
+    isPaid: Joi.boolean().required(),
     isPublished: Joi.boolean().required(),
     items: Joi.array().required(),
     title: Joi.string().min(3).required(),
@@ -34,6 +35,7 @@ const validateRequestBody = (req) => {
 
 const transformSheet = data => ({
   date: data.date,
+  isPaid: data.isPaid,
   isPublished: data.isPublished,
   items: data.items,
   title: data.title,
