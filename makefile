@@ -7,7 +7,7 @@ depend:
 	yarn install
 
 mongod:
-	mongod
+	mongod --dbpath=/Users/garyfagan/data/db/
 
 lint:
 	eslint "**/*.js" --config .eslintrc
