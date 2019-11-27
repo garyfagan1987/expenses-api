@@ -4,6 +4,12 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+  businessName: {
+    maxlength: 50,
+    minlength: 5,
+    required: true,
+    type: String,
+  },
   email: {
     maxlength: 255,
     minlength: 5,

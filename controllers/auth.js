@@ -43,9 +43,9 @@ const validatePassword = async (req) => {
   if (!isValidPassword) throw Error('Invalid email or password.');
 };
 
-const getToken = async (req) => {
+const getUser = async (req) => {
   const user = await User.findOne({ email: req.body.email });
-  return user.generateAuthToken(user);
+  return user;
 };
 
 module.exports = async (req, res) => {
@@ -58,6 +58,12 @@ module.exports = async (req, res) => {
     return res.status(400).send(error.message);
   }
 
-  const token = await getToken(req, res);
-  return res.send({ token });
+  const user = await getUser(req, res);
+  return res.send({
+    businessName: user.businessName,
+    email: user.email,
+    name: user.name,
+    password: '********',
+    token: user.generateAuthToken(user),
+  });
 };
